@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>STWRD</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--c1: #071933; --c2: #1F2D4A; --c3: #364362;
+--c4: #F5EC50; --c5: #FCFCFC;
+--c4-03: rgba(245,236,80,0.03); --c4-05: rgba(245,236,80,0.05);
+--c4-08: rgba(245,236,80,0.08); --c4-12: rgba(245,236,80,0.12);
+--c4-15: rgba(245,236,80,0.15); --c4-25: rgba(245,236,80,0.25);
+--c4-40: rgba(245,236,80,0.40);
+--c5-50: rgba(252,252,252,0.50); --c5-75: rgba(252,252,252,0.75);
+--c1-80: rgba(7,25,51,0.80); --c1-90: rgba(7,25,51,0.90);
+--bg: var(--c1); --surface: var(--c2); --card: var(--c3);
+--accent: var(--c4); --text: var(--c5);
+--muted: var(--c5-50); --dim: var(--c5-75); --border: var(--c4-12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;max-width:430px;margin:0 auto;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+@media(min-width:500px){
+body{background:#03101f;display:flex;align-items:center;justify-content:center;height:100vh;max-width:100%}
+#phone-frame{width:390px;height:844px;border-radius:52px;border:8px solid var(--c2);box-shadow:0 0 0 2px var(--c3),0 40px 120px rgba(3,16,31,0.95);overflow:hidden;position:relative;background:var(--c1)}
+#phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:34px;background:var(--c2);border-radius:0 0 22px 22px;z-index:999}
+}
+@media(max-width:499px){
+#phone-frame{width:100%;height:100vh;border-radius:0;overflow:hidden;position:relative}
+#phone-notch{display:none}
+}
+
+#app-inner{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative;background:var(--c1)}
+
+/* ══ SIGNIN ══ */
+#signin-screen{position:absolute;inset:0;z-index:200;background:var(--c1);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;transition:opacity 0.4s ease,transform 0.4s ease}
+#signin-screen.out{opacity:0;transform:scale(0.96);pointer-events:none}
+.si-brand{font-family:'Fraunces',serif;font-size:48px;color:var(--c4);letter-spacing:-3px;margin-bottom:6px}
+.si-tag{font-size:13px;color:var(--muted);margin-bottom:48px;text-align:center;line-height:1.5}
+.si-heading{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:6px;text-align:center}
+.si-sub{font-size:13px;color:var(--muted);margin-bottom:24px;text-align:center}
+.role-cards{display:flex;flex-direction:column;gap:12px;width:100%;margin-bottom:28px}
+.role-card{background:var(--c2);border:2px solid var(--border);border-radius:20px;padding:20px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:16px}
+.role-card:active{transform:scale(0.98)}
+.role-card.selected{border-color:var(--c4);background:var(--c4-08)}
+.role-card-icon{width:52px;height:52px;border-radius:14px;background:var(--c3);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;transition:background 0.2s}
+.role-card.selected .role-card-icon{background:var(--c4-15)}
+.role-card-text{}
+.role-card-title{font-family:'Fraunces',serif;font-size:17px;font-weight:700}
+.role-card-desc{font-size:12px;color:var(--muted);margin-top:3px}
+.role-card .rc-check{margin-left:auto;width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--c4);flex-shrink:0;transition:all 0.2s}
+.role-card.selected .rc-check{background:var(--c4);border-color:var(--c4);color:var(--c1)}
+.si-continue{width:100%;padding:16px;border-radius:16px;border:none;background:var(--c3);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;cursor:not-allowed;transition:all 0.25s}
+.si-continue.ready{background:var(--c4);color:var(--c1);cursor:pointer}
+.si-continue.ready:active{opacity:0.85}
+.si-footer{margin-top:16px;font-size:11px;color:var(--muted);text-align:center}
+.si-name-wrap{width:100%;margin-bottom:16px;display:none}
+.si-name-wrap.show{display:block}
+.si-name-label{font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block}
+.si-name-input{width:100%;background:var(--c2);border:2px solid var(--border);border-radius:14px;padding:14px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s}
+.si-name-input:focus{border-color:var(--c4-40)}
+.si-name-input::placeholder{color:var(--muted)}
+
+/* Loading screen */
+#loading-screen{position:absolute;inset:0;z-index:150;background:var(--c1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;pointer-events:none;transition:opacity 0.3s}
+#loading-screen.show{opacity:1;pointer-events:all}
+.loading-logo{font-family:'Fraunces',serif;font-size:36px;color:var(--c4);letter-spacing:-2px}
+.loading-bar-wrap{width:160px;height:3px;background:var(--c3);border-radius:2px;overflow:hidden}
+.loading-bar{height:100%;background:var(--c4);border-radius:2px;width:0;transition:width 0.05s linear}
+.loading-status{font-size:11px;color:var(--muted);font-family:'DM Sans',sans-serif}
+
+/* ══ TOPBAR ══ */
+.topbar{height:56px;display:flex;align-items:center;padding:0 20px;flex-shrink:0;gap:12px;border-bottom:1px solid var(--border);background:var(--c1-90);position:relative;z-index:10}
+.topbar-logo{font-family:'Fraunces',serif;font-size:22px;color:var(--c4);letter-spacing:-1px}
+.topbar-title{font-family:'Fraunces',serif;font-size:20px;font-weight:600;flex:1}
+.topbar-icon{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--c2);display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;flex-shrink:0}
+.topbar-avatar{width:32px;height:32px;border-radius:50%;background:var(--c4-15);border:2px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--c4);cursor:pointer;flex-shrink:0}
+.topbar-role-badge{font-size:9px;background:var(--c4);color:var(--c1);padding:2px 6px;border-radius:4px;font-weight:700;letter-spacing:0.04em}
+
+/* ══ PAGES ══ */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:16px 16px 24px;display:none;-webkit-overflow-scrolling:touch}
+.page.active{display:block}
+.page::-webkit-scrollbar{display:none}
+
+/* ══ BOTTOM NAV ══ */
+.bottom-nav{height:72px;display:flex;align-items:flex-start;padding-top:10px;border-top:1px solid var(--border);background:var(--c2);flex-shrink:0}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;transition:color 0.2s;position:relative;padding:0}
+.bn-item.active{color:var(--c4)}
+.bn-item svg{width:22px;height:22px}
+.bn-badge{position:absolute;top:-2px;right:calc(50% - 18px);background:var(--c4);color:var(--c1);border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--c2)}
+
+/* ══ SHARED COMPONENTS ══ */
+.card{background:var(--c2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px}
+.card-title{font-family:'Fraunces',serif;font-size:15px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600}
+.pill-accent{background:var(--c4-15);color:var(--c4);border:1px solid var(--c4-25)}
+.pill-subtle{background:var(--c3);color:var(--c5-75);border:1px solid var(--c4-12)}
+.pill-safe{background:var(--c4-15);color:var(--c4);border:1px solid var(--c4-25)}
+.pill-caution{background:var(--c4-08);color:var(--c5-75);border:1px solid var(--c4-12)}
+.pill-avoid{background:var(--c4-08);color:var(--c5-50);border:1px solid var(--c4-05);text-decoration:line-through}
+.pill-pending{background:rgba(245,180,60,0.15);color:#f5b43c;border:1px solid rgba(245,180,60,0.3)}
+.pill-new{background:rgba(80,200,160,0.15);color:#50c8a0;border:1px solid rgba(80,200,160,0.3)}
+.stars{color:var(--c4);font-size:12px;letter-spacing:1px}
+.btn{padding:10px 18px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.15s}
+.btn:active{opacity:0.8}
+.btn-primary{background:var(--c4);color:var(--c1)}
+.btn-ghost{background:var(--c4-08);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:rgba(220,60,60,0.15);color:#e05555;border:1px solid rgba(220,60,60,0.25)}
+.btn-full{width:100%;justify-content:center}
+
+/* ══ PROFILE CARD ══ */
+.profile-card{background:var(--c2);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:14px}
+.pc-top{display:flex;align-items:center;gap:14px}
+.pc-avatar{width:64px;height:64px;border-radius:50%;background:var(--c4-15);border:3px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--c4);flex-shrink:0;position:relative}
+.pc-vbadge{position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;border-radius:50%;background:var(--c4);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--c1);border:2px solid var(--c2)}
+.pc-name{font-family:'Fraunces',serif;font-size:20px;font-weight:700}
+.pc-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.pc-stats{display:flex;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.pstat{flex:1;text-align:center;border-right:1px solid var(--border)}
+.pstat:last-child{border-right:none}
+.pstat-v{font-family:'Fraunces',serif;font-size:18px;color:var(--c4);font-weight:700}
+.pstat-l{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ══ LISTING ROW ══ */
+.listing-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.listing-row:last-child{border-bottom:none}
+.lr-icon{width:38px;height:38px;border-radius:10px;background:var(--c4-15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.lr-info{flex:1;min-width:0}
+.lr-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.lr-price{font-family:'Fraunces',serif;font-size:15px;color:var(--c4);font-weight:600;flex-shrink:0}
+
+/* ══ REVIEW ══ */
+.review-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.review-item:last-child{border-bottom:none}
+.review-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.review-auth{font-size:13px;font-weight:600}
+.review-stars{font-size:12px;color:var(--c4)}
+.review-text{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* ══ SEARCH (student) ══ */
+.search-box{display:flex;align-items:center;gap:10px;background:var(--c2);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+.search-box input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+.search-box input::placeholder{color:var(--muted)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
+.chip.active{background:var(--c4-15);border-color:var(--c4);color:var(--c4)}
+
+/* ══ WORKER CARDS ══ */
+.worker-card{background:var(--c2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;position:relative}
+.worker-card:active{border-color:var(--c4-40)}
+.wc-top{display:flex;gap:12px;align-items:flex-start}
+.wc-av{width:52px;height:52px;border-radius:50%;background:var(--c3);border:2px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--c4);flex-shrink:0}
+.wc-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600}
+.wc-school{font-size:11px;color:var(--muted);margin-top:2px}
+.wc-rating{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:12px;color:var(--muted)}
+.wc-vetted{position:absolute;top:14px;right:14px;background:var(--c4-15);border:1px solid var(--c4-25);border-radius:6px;padding:2px 7px;font-size:10px;color:var(--c4);font-weight:600}
+.wc-skills{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.wc-skill{padding:3px 10px;border-radius:20px;background:var(--c4-08);border:1px solid var(--border);font-size:11px;color:var(--dim)}
+.wc-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+
+/* ══ LISTING CARDS (student) ══ */
+.lcard{background:var(--c2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;position:relative}
+.lcard:active{border-color:var(--c4-25)}
+.lcard.premium{border-color:var(--c4-40);background:linear-gradient(135deg,var(--c2) 0%,var(--c4-05) 100%)}
+.lcard-boost{position:absolute;top:14px;right:14px;background:var(--c4);color:var(--c1);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px}
+.lcard-top{display:flex;gap:12px;align-items:flex-start}
+.lcard-emoji{width:52px;height:52px;border-radius:12px;background:var(--c3);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.lcard-title{font-family:'Fraunces',serif;font-size:17px;font-weight:600}
+.lcard-price{font-family:'Fraunces',serif;font-size:18px;color:var(--c4);font-weight:700;margin-top:2px}
+.hw-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.hw-av{width:28px;height:28px;border-radius:50%;background:var(--c3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--c4);flex-shrink:0}
+.hw-name{font-size:12px;font-weight:600}
+.hw-check{font-size:11px;color:var(--c4);margin-left:3px}
+.hw-rating-row{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+
+/* ══ CALENDAR ══ */
+.cal-day{aspect-ratio:1;border-radius:8px;font-size:12px;font-weight:500;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--dim);position:relative;gap:2px}
+.cal-day.today{background:var(--c4-15);color:var(--c4);font-weight:700}
+.cal-day.has-job::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--c4);position:absolute;bottom:3px}
+.cal-day.other-month{color:var(--muted);opacity:0.4}
+.cal-day.selected-day{background:var(--c4);color:var(--c1);font-weight:700;border-radius:50%}
+
+/* ══ JOB CARDS ══ */
+.job-card{background:var(--c2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start}
+.job-card-icon{width:44px;height:44px;border-radius:10px;background:var(--c3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.job-card-info{flex:1;min-width:0}
+.job-card-title{font-weight:600;font-size:14px}
+.job-card-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5}
+.job-card-price{font-family:'Fraunces',serif;font-size:15px;color:var(--c4);font-weight:700;flex-shrink:0}
+
+/* ══ MESSAGES ══ */
+.msg-page{display:none;flex-direction:column}
+.msg-page.active{display:flex;position:absolute;inset:0}
+.thread-list{flex:1;overflow-y:auto}
+.thread-list::-webkit-scrollbar{display:none}
+.thread{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--c4-05)}
+.thread.stewie-thread{background:var(--c4-03)}
+.thread:active{background:var(--c4-08)}
+.th-av{width:46px;height:46px;border-radius:50%;background:var(--c3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--c4);flex-shrink:0}
+.th-av.stewie{background:var(--c4-15);border-color:var(--c4);font-size:22px}
+.th-info{flex:1;min-width:0}
+.th-name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.ai-pill{font-size:9px;background:var(--c4);color:var(--c1);padding:1px 5px;border-radius:3px;font-weight:700}
+.th-preview{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.th-time{font-size:11px;color:var(--muted);flex-shrink:0}
+.chat-view{position:absolute;inset:0;background:var(--c1);display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease}
+.chat-view.open{transform:translateX(0)}
+.chat-topbar{height:56px;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--c2)}
+.chat-back{width:34px;height:34px;border-radius:10px;background:var(--c3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--dim);font-size:18px}
+.chat-topbar-av{width:34px;height:34px;border-radius:50%;background:var(--c3);border:2px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--c4)}
+.chat-topbar-name{font-weight:600;font-size:14px;flex:1}
+.chat-online{font-size:11px;color:var(--c4);display:flex;align-items:center;gap:4px}
+.chat-online::before{content:'';display:inline-block;width:6px;height:6px;background:var(--c4);border-radius:50%}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.chat-msgs::-webkit-scrollbar{display:none}
+.bubble{max-width:78%;padding:11px 14px;border-radius:18px;font-size:14px;line-height:1.5}
+.bubble-recv{background:var(--c2);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start}
+.bubble-sent{background:var(--c4);color:var(--c1);font-weight:500;border-bottom-right-radius:4px;align-self:flex-end}
+.bubble-stewie{border-color:var(--c4-25);background:linear-gradient(135deg,var(--c2) 0%,var(--c4-05) 100%)}
+.stewie-lbl{font-size:11px;color:var(--c4);font-weight:600;margin-bottom:4px}
+.chat-input-row{padding:10px 14px 14px;display:flex;gap:8px;flex-shrink:0;border-top:1px solid var(--border);background:var(--c1)}
+.chat-input-row input{flex:1;background:var(--c2);border:1px solid var(--border);border-radius:22px;padding:11px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+.chat-input-row input:focus{border-color:var(--c4-40)}
+.chat-input-row input::placeholder{color:var(--muted)}
+.send-btn{width:42px;height:42px;border-radius:50%;background:var(--c4);border:none;color:var(--c1);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.typing-dots{display:inline-flex;gap:3px;align-items:center}
+.typing-dots span{width:6px;height:6px;background:var(--c4);border-radius:50%;animation:bounce 1.1s infinite}
+.typing-dots span:nth-child(2){animation-delay:0.2s}
+.typing-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* ══ MODALS ══ */
+.modal-overlay{position:absolute;inset:0;background:var(--c1-80);z-index:50;display:none;align-items:flex-end}
+.modal-overlay.open{display:flex}
+.modal-sheet{width:100%;max-height:90%;background:var(--c2);border-radius:24px 24px 0 0;border:1px solid var(--border);border-bottom:none;padding:0 20px 36px;overflow-y:auto;position:relative}
+.modal-sheet::-webkit-scrollbar{display:none}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 20px}
+.modal-close-btn{position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;background:var(--c3);border:1px solid var(--border);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-av{width:64px;height:64px;border-radius:50%;background:var(--c4-15);border:3px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--c4);margin-bottom:12px}
+.modal-name{font-family:'Fraunces',serif;font-size:22px;font-weight:700}
+.modal-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.modal-sec{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.modal-sec-title{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.modal-bio{font-size:13px;color:var(--dim);line-height:1.6}
+.stats-row{display:flex;gap:10px}
+.mstat{flex:1;background:var(--c3);border-radius:12px;padding:12px 8px;text-align:center}
+.mstat-v{font-family:'Fraunces',serif;font-size:18px;color:var(--c4);font-weight:700}
+.mstat-l{font-size:10px;color:var(--muted);margin-top:2px}
+.skills-wrap{display:flex;gap:8px;flex-wrap:wrap}
+.skill-tag{padding:5px 12px;border-radius:8px;background:var(--c4-08);border:1px solid var(--border);font-size:12px;color:var(--dim)}
+.btn-row{display:flex;gap:10px;margin-top:16px}
+.form-label{display:block;font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);margin:14px 0 7px}
+.form-field{width:100%;background:var(--c3);border:1px solid var(--border);border-radius:12px;padding:13px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+.form-field:focus{border-color:var(--c4-40)}
+.form-field::placeholder{color:var(--muted)}
+select.form-field option{background:var(--c2)}
+textarea.form-field{resize:none;height:80px}
+
+/* ══ BOOKING STEPS ══ */
+.bstep{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--c3);color:var(--muted);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.bstep.active{border-color:var(--c4);background:var(--c4);color:var(--c1)}
+.bstep.done{border-color:var(--c4);background:var(--c4-15);color:var(--c4)}
+.service-tile{background:var(--c3);border:1px solid var(--border);border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;transition:all 0.2s}
+.service-tile:active,.service-tile.selected{border-color:var(--c4);background:var(--c4-15)}
+.service-tile .st-icon{font-size:28px;margin-bottom:6px}
+.service-tile .st-name{font-size:12px;font-weight:600;color:var(--dim)}
+.service-tile.selected .st-name{color:var(--c4)}
+
+/* ══ HOMEOWNER SPECIFIC ══ */
+.ho-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ho-stat{background:var(--c2);border:1px solid var(--border);border-radius:16px;padding:16px}
+.ho-stat-val{font-family:'Fraunces',serif;font-size:26px;color:var(--c4);font-weight:700}
+.ho-stat-label{font-size:11px;color:var(--muted);margin-top:3px}
+.ho-stat-sub{font-size:10px;color:var(--c4);margin-top:6px;font-weight:600}
+
+.applicant-card{background:var(--c2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px}
+.ac-top{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.ac-av{width:44px;height:44px;border-radius:50%;background:var(--c3);border:2px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--c4);flex-shrink:0}
+.ac-name{font-family:'Fraunces',serif;font-size:15px;font-weight:700}
+.ac-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.ac-btns{display:flex;gap:8px}
+
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:var(--c4);flex-shrink:0;margin-top:5px}
+.activity-dot.grey{background:var(--c3)}
+.activity-text{font-size:13px;color:var(--dim);line-height:1.5;flex:1}
+.activity-time{font-size:11px;color:var(--muted);flex-shrink:0}
+
+.post-job-btn{width:100%;padding:16px;border-radius:16px;border:2px dashed var(--c4-25);background:var(--c4-03);color:var(--c4);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;transition:all 0.2s}
+.post-job-btn:active{background:var(--c4-08);border-color:var(--c4-40)}
+
+.ho-job-card{background:var(--c2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer}
+.ho-job-card:active{border-color:var(--c4-25)}
+.ho-job-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.ho-job-icon{width:46px;height:46px;border-radius:12px;background:var(--c3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ho-job-title{font-family:'Fraunces',serif;font-size:16px;font-weight:600}
+.ho-job-price{font-size:13px;color:var(--c4);font-weight:600;margin-top:2px}
+.ho-job-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
+
+/* ══ PORTFOLIO ══ */
+.portfolio-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.portfolio-row::-webkit-scrollbar{display:none}
+.port-item{width:78px;height:78px;border-radius:14px;background:var(--c3);border:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:26px}
+.port-item:active{border-color:var(--c4)}
+.port-item-lbl{font-size:10px;color:var(--muted);font-weight:500}
+
+/* ══ TOAST ══ */
+#toast{position:absolute;bottom:84px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--c3);border:1px solid var(--border);color:var(--text);padding:11px 22px;border-radius:40px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all 0.3s;z-index:300;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══ API LOG OVERLAY ══ */
+#api-log{position:absolute;bottom:80px;right:12px;width:200px;background:rgba(7,25,51,0.95);border:1px solid var(--c4-25);border-radius:10px;padding:10px;font-size:10px;font-family:monospace;color:var(--c4);z-index:400;display:none;max-height:120px;overflow:hidden}
+#api-log.show{display:block}
+.api-log-line{opacity:0.7;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.api-log-line.fresh{opacity:1;color:var(--c4)}
+
+/* ══ SWITCH ROLE BANNER ══ */
+.switch-role-btn{position:absolute;top:6px;right:56px;background:var(--c3);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:10px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;z-index:20}
+</style>
+</head>
+<body>
+<div id="phone-frame">
+<div id="phone-notch"></div>
+<div id="app-inner">
+
+<!-- ══ SIGN IN SCREEN ══ -->
+<div id="signin-screen">
+  <div class="si-brand">STWRD</div>
+  <div class="si-tag">Reliable Help, Right Next Door.</div>
+  <div class="si-heading">Who are you?</div>
+  <div class="si-sub">Choose your role to get started</div>
+  <div class="role-cards">
+    <div class="role-card" id="role-ho" onclick="selectRole('homeowner')">
+      <div class="role-card-icon">🏡</div>
+      <div class="role-card-text">
+        <div class="role-card-title">Homeowner</div>
+        <div class="role-card-desc">Post jobs and hire local students</div>
+      </div>
+      <div class="rc-check">✓</div>
+    </div>
+    <div class="role-card" id="role-st" onclick="selectRole('student')">
+      <div class="role-card-icon">🎒</div>
+      <div class="role-card-text">
+        <div class="role-card-title">Student / Worker</div>
+        <div class="role-card-desc">Find jobs and earn in your neighborhood</div>
+      </div>
+      <div class="rc-check">✓</div>
+    </div>
+  </div>
+  <div class="si-name-wrap" id="si-name-wrap">
+    <label class="si-name-label" for="si-name">Your first name</label>
+    <input class="si-name-input" id="si-name" type="text" placeholder="e.g. Alex" maxlength="24" autocomplete="off" oninput="onNameInput()">
+  </div>
+  <button class="si-continue" id="si-continue" onclick="doSignIn()">Continue →</button>
+  <div class="si-footer">No account needed for this demo · Data is simulated</div>
+</div>
+
+<!-- ══ LOADING SCREEN ══ -->
+<div id="loading-screen">
+  <div class="loading-logo">STWRD</div>
+  <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+  <div class="loading-status" id="loading-status">Connecting to server…</div>
+</div>
+
+<!-- ══ TOP BAR ══ -->
+<div class="topbar" id="topbar" style="display:none">
+  <div class="topbar-logo" id="topbar-logo">STWRD</div>
+  <div class="topbar-title" id="topbar-title"></div>
+  <div class="topbar-role-badge" id="topbar-role-badge" style="display:none"></div>
+  <div class="topbar-icon" id="api-log-toggle" onclick="toggleApiLog()" title="API Log">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+  </div>
+  <div class="topbar-avatar" id="topbar-avatar"></div>
+</div>
+
+<!-- ══ PAGES ══ -->
+<div class="pages" id="pages" style="display:none">
+
+<!-- ─── STUDENT: HOME ─── -->
+<div class="page active" id="page-s-home">
+<div class="profile-card">
+  <div class="pc-top">
+    <div class="pc-avatar" id="s-profile-avatar">JM<div class="pc-vbadge">✓</div></div>
+    <div>
+      <div class="pc-name" id="s-profile-name">Joel Montiel</div>
+      <div class="pc-sub" id="s-profile-sub">📍 Goshen, IN · 17 · Concord HS</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+        <span class="stars">★★★★★</span>
+        <span style="font-size:11px;color:var(--muted)">4.9 · 38 reviews</span>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <span class="pill pill-accent">✓ Vetted</span>
+        <span class="pill pill-accent">🏆 Top Rated</span>
+      </div>
+    </div>
+  </div>
+  <div class="pc-stats">
+    <div class="pstat"><div class="pstat-v">127</div><div class="pstat-l">Svc Hrs</div></div>
+    <div class="pstat"><div class="pstat-v">42</div><div class="pstat-l">Jobs</div></div>
+    <div class="pstat"><div class="pstat-v">$1,840</div><div class="pstat-l">Earned</div></div>
+    <div class="pstat"><div class="pstat-v">100%</div><div class="pstat-l">On-Time</div></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">Portfolio <button class="btn btn-ghost" style="font-size:10px;padding:4px 10px">+ Add</button></div>
+  <div class="portfolio-row">
+    <div class="port-item" onclick="openPortfolio('Lawn Mowing','🌿','24','4.9')">🌿<div class="port-item-lbl">24 jobs</div></div>
+    <div class="port-item" onclick="openPortfolio('Car Washing','🚗','11','5.0')">🚗<div class="port-item-lbl">11 jobs</div></div>
+    <div class="port-item" onclick="openPortfolio('Snow Removal','❄️','8','4.8')">❄️<div class="port-item-lbl">8 jobs</div></div>
+    <div class="port-item" onclick="openPortfolio('Yard Work','🍂','16','4.9')">🍂<div class="port-item-lbl">16 jobs</div></div>
+    <div class="port-item" onclick="openPortfolio('Cleaning','🧹','6','5.0')">🧹<div class="port-item-lbl">6 jobs</div></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">Reviews</div>
+  <div class="review-item"><div class="review-top"><div class="review-auth">Sandra K.</div><div class="review-stars">★★★★★</div><span class="pill pill-accent" style="margin-left:auto;font-size:9px">Verified HO</span></div><div class="review-text">"Joel was on time and super professional. Best lawn care all year!"</div></div>
+  <div class="review-item"><div class="review-top"><div class="review-auth">Marcus T.</div><div class="review-stars">★★★★★</div></div><div class="review-text">"Amazing job washing both cars. Will definitely book again."</div></div>
+  <div class="review-item"><div class="review-top"><div class="review-auth">Lisa M.</div><div class="review-stars">★★★★☆</div></div><div class="review-text">"Good work on the yard. Stayed a little late but got everything done."</div></div>
+</div>
+<div class="card">
+  <div class="card-title">Active Listings</div>
+  <div class="listing-row"><div class="lr-icon">🌿</div><div class="lr-info"><div class="lr-title">Lawn Mowing — Sandra K.</div><div class="lr-sub">Sat Mar 7 · 10 AM · 0.4 mi · South Bend</div></div><span class="pill pill-accent">Active</span></div>
+  <div class="listing-row"><div class="lr-icon">🚗</div><div class="lr-info"><div class="lr-title">Car Wash — Marcus T.</div><div class="lr-sub">Sun Mar 8 · 2 PM · 0.8 mi · Goshen</div></div><span class="pill pill-subtle">Pending</span></div>
+</div>
+<div class="card">
+  <div class="card-title">Completed</div>
+  <div class="listing-row"><div class="lr-icon">❄️</div><div class="lr-info"><div class="lr-title">Snow Removal — Davis Family</div><div class="lr-sub">Feb 15 · 2.5 hrs</div></div><div class="lr-price">$55</div></div>
+  <div class="listing-row"><div class="lr-icon">🍂</div><div class="lr-info"><div class="lr-title">Yard Cleanup — Chen Residence</div><div class="lr-sub">Feb 10 · 3 hrs</div></div><div class="lr-price">$70</div></div>
+  <div class="listing-row"><div class="lr-icon">🌿</div><div class="lr-info"><div class="lr-title">Lawn Mowing — Peters Home</div><div class="lr-sub">Feb 3 · 1.5 hrs</div></div><div class="lr-price">$35</div></div>
+</div>
+</div>
+
+<!-- ─── STUDENT: SEARCH/JOBS ─── -->
+<div class="page" id="page-s-search">
+<div class="search-box">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  <input placeholder="Search jobs near you…" oninput="filterListings(this.value)">
+</div>
+<div class="chips">
+  <button class="chip active" onclick="filterListingChip(this,'all')">All</button>
+  <button class="chip" onclick="filterListingChip(this,'lawn')">🌿 Lawn</button>
+  <button class="chip" onclick="filterListingChip(this,'snow')">❄️ Snow</button>
+  <button class="chip" onclick="filterListingChip(this,'car')">🚗 Car Wash</button>
+  <button class="chip" onclick="filterListingChip(this,'yard')">🍂 Yard</button>
+  <button class="chip" onclick="filterListingChip(this,'clean')">🧹 Cleaning</button>
+  <button class="chip" onclick="filterListingChip(this,'boosted')">⚡ Boosted</button>
+</div>
+<div id="listings-list"></div>
+</div>
+
+<!-- ─── STUDENT: SCHEDULE ─── -->
+<div class="page" id="page-s-schedule">
+<div class="card" style="margin-bottom:14px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <button onclick="prevMonth()" style="background:var(--c3);border:1px solid var(--border);border-radius:8px;width:30px;height:30px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
+    <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:600" id="cal-month-label"></div>
+    <button onclick="nextMonth()" style="background:var(--c3);border:1px solid var(--border);border-radius:8px;width:30px;height:30px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:8px">
+    <div style="font-size:10px;color:var(--muted);font-weight:600;padding:4px">S</div><div style="font-size:10px;color:var(--muted);font-weight:600;padding:4px">M</div><div style="font-size:10px;color:var(--muted);font-weight:600;padding:4px">T</div><div style="font-size:10px;color:var(--muted);font-weight:600;padding:4px">W</div><div style="font-size:10px;color:var(--muted);font-weight:600;padding:4px">T</div><div style="font-size:10px;color:var(--muted);font-weight:600;padding:4px">F</div><div style="font-size:10px;color:var(--muted);font-weight:600;padding:4px">S</div>
+  </div>
+  <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:2px"></div>
+</div>
+<div style="font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+  Upcoming Jobs
+  <button class="btn btn-primary" style="font-size:11px;padding:6px 14px" onclick="openNewBooking()">+ Book</button>
+</div>
+<div id="upcoming-jobs"></div>
+<div style="font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin:16px 0 12px">Past Jobs</div>
+<div id="past-jobs"></div>
+</div>
+
+<!-- ─── STUDENT: MESSAGES ─── -->
+<div class="page msg-page" id="page-s-messages">
+  <div class="thread-list" id="s-thread-list"></div>
+  <div class="chat-view" id="s-chat-view">
+    <div class="chat-topbar">
+      <div class="chat-back" onclick="closeChat('s')">‹</div>
+      <div class="chat-topbar-av" id="s-ct-av"></div>
+      <div style="flex:1"><div class="chat-topbar-name" id="s-ct-name"></div><div class="chat-online">Online</div></div>
+    </div>
+    <div class="chat-msgs" id="s-chat-msgs"></div>
+    <div class="chat-input-row">
+      <input id="s-chat-input" placeholder="Message…" onkeypress="if(event.key==='Enter')sendMsg('s')">
+      <button class="send-btn" onclick="sendMsg('s')">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── HOMEOWNER: HOME ─── -->
+<div class="page" id="page-h-home">
+<div class="profile-card">
+  <div class="pc-top">
+    <div class="pc-avatar" style="font-size:18px" id="h-profile-avatar">SK<div class="pc-vbadge">✓</div></div>
+    <div>
+      <div class="pc-name" id="h-profile-name">Sandra Kim</div>
+      <div class="pc-sub" id="h-profile-sub">📍 South Bend, IN · Verified Homeowner</div>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <span class="pill pill-accent">✓ ID Verified</span>
+        <span class="pill pill-safe">🏡 Trusted Host</span>
+      </div>
+    </div>
+  </div>
+  <div class="pc-stats">
+    <div class="pstat"><div class="pstat-v">14</div><div class="pstat-l">Jobs Posted</div></div>
+    <div class="pstat"><div class="pstat-v">$680</div><div class="pstat-l">Spent</div></div>
+    <div class="pstat"><div class="pstat-v">4.9</div><div class="pstat-l">HO Rating</div></div>
+    <div class="pstat"><div class="pstat-v">3</div><div class="pstat-l">Regulars</div></div>
+  </div>
+</div>
+<div class="ho-stat-grid">
+  <div class="ho-stat">
+    <div class="ho-stat-val">2</div>
+    <div class="ho-stat-label">Active Jobs</div>
+    <div class="ho-stat-sub">↑ 1 new applicant</div>
+  </div>
+  <div class="ho-stat">
+    <div class="ho-stat-val">$135</div>
+    <div class="ho-stat-label">This Month</div>
+    <div class="ho-stat-sub">↓ 12% vs last mo.</div>
+  </div>
+  <div class="ho-stat">
+    <div class="ho-stat-val">6</div>
+    <div class="ho-stat-label">Applicants</div>
+    <div class="ho-stat-sub">↑ 3 new today</div>
+  </div>
+  <div class="ho-stat">
+    <div class="ho-stat-val">100%</div>
+    <div class="ho-stat-label">Completion Rate</div>
+    <div class="ho-stat-sub">All-time record</div>
+  </div>
+</div>
+<button class="post-job-btn" onclick="openPostJob()">＋ Post a New Job</button>
+<div class="card">
+  <div class="card-title">Recent Activity</div>
+  <div class="activity-item"><div class="activity-dot"></div><div class="activity-text"><b>Joel M.</b> applied for Weekly Lawn Mowing</div><div class="activity-time">2m</div></div>
+  <div class="activity-item"><div class="activity-dot"></div><div class="activity-text"><b>Owen B.</b> completed Car Wash · Paid $50</div><div class="activity-time">1h</div></div>
+  <div class="activity-item"><div class="activity-dot"></div><div class="activity-text"><b>Tristan J.</b> applied for Yard Cleanup</div><div class="activity-time">3h</div></div>
+  <div class="activity-item"><div class="activity-dot grey"></div><div class="activity-text">Lawn Mowing listing expired — repost?</div><div class="activity-time">1d</div></div>
+</div>
+<div class="card">
+  <div class="card-title">Upcoming Jobs</div>
+  <div class="listing-row"><div class="lr-icon">🌿</div><div class="lr-info"><div class="lr-title">Lawn Mowing — Joel M.</div><div class="lr-sub">Sat Apr 26 · 10 AM · Confirmed</div></div><span class="pill pill-accent">✓</span></div>
+  <div class="listing-row"><div class="lr-icon">🚗</div><div class="lr-info"><div class="lr-title">Car Wash — Owen B.</div><div class="lr-sub">Sun Apr 27 · 2 PM · Pending</div></div><span class="pill pill-subtle">Pend</span></div>
+</div>
+</div>
+
+<!-- ─── HOMEOWNER: MY JOBS ─── -->
+<div class="page" id="page-h-jobs">
+<button class="post-job-btn" onclick="openPostJob()">＋ Post a New Job</button>
+<div style="font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin-bottom:12px">Active Listings</div>
+<div id="ho-active-listings"></div>
+<div style="font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin:16px 0 12px">Past Jobs</div>
+<div id="ho-past-jobs"></div>
+</div>
+
+<!-- ─── HOMEOWNER: FIND WORKERS ─── -->
+<div class="page" id="page-h-workers">
+<div class="search-box">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  <input placeholder="Name, skill, school…" oninput="filterWorkers(this.value)">
+</div>
+<div class="chips">
+  <button class="chip active" onclick="filterChip(this,'all')">All</button>
+  <button class="chip" onclick="filterChip(this,'lawn')">🌿 Lawn</button>
+  <button class="chip" onclick="filterChip(this,'snow')">❄️ Snow</button>
+  <button class="chip" onclick="filterChip(this,'car')">🚗 Car Wash</button>
+  <button class="chip" onclick="filterChip(this,'yard')">🍂 Yard</button>
+  <button class="chip" onclick="filterChip(this,'clean')">🧹 Cleaning</button>
+  <button class="chip" onclick="filterChip(this,'vetted')">✓ Vetted</button>
+  <button class="chip" onclick="filterChip(this,'top')">⭐ 4.8+</button>
+</div>
+<div id="workers-list"></div>
+</div>
+
+<!-- ─── HOMEOWNER: MESSAGES ─── -->
+<div class="page msg-page" id="page-h-messages">
+  <div class="thread-list" id="h-thread-list"></div>
+  <div class="chat-view" id="h-chat-view">
+    <div class="chat-topbar">
+      <div class="chat-back" onclick="closeChat('h')">‹</div>
+      <div class="chat-topbar-av" id="h-ct-av"></div>
+      <div style="flex:1"><div class="chat-topbar-name" id="h-ct-name"></div><div class="chat-online">Online</div></div>
+    </div>
+    <div class="chat-msgs" id="h-chat-msgs"></div>
+    <div class="chat-input-row">
+      <input id="h-chat-input" placeholder="Message…" onkeypress="if(event.key==='Enter')sendMsg('h')">
+      <button class="send-btn" onclick="sendMsg('h')">↑</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /pages -->
+
+<!-- ══ BOTTOM NAV ══ -->
+<div class="bottom-nav" id="bottom-nav" style="display:none">
+  <!-- injected dynamically -->
+</div>
+
+<!-- ══ MODAL: Worker Profile ══ -->
+<div class="modal-overlay" id="modal-worker">
+<div class="modal-sheet">
+  <div class="modal-handle"></div>
+  <button class="modal-close-btn" onclick="closeModal('modal-worker')">×</button>
+  <div class="modal-av" id="mw-av"></div>
+  <div class="modal-name" id="mw-name"></div>
+  <div class="modal-sub" id="mw-sub"></div>
+  <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+    <span class="stars" id="mw-stars"></span>
+    <span style="font-size:12px;color:var(--muted)" id="mw-rv"></span>
+    <span class="pill pill-accent" id="mw-vetted" style="display:none">✓ Vetted</span>
+  </div>
+  <div class="modal-sec"><div class="modal-sec-title">Stats</div><div class="stats-row" id="mw-stats"></div></div>
+  <div class="modal-sec"><div class="modal-sec-title">About</div><div class="modal-bio" id="mw-bio"></div></div>
+  <div class="modal-sec"><div class="modal-sec-title">Services</div><div class="skills-wrap" id="mw-skills"></div></div>
+  <div class="modal-sec"><div class="modal-sec-title">Reviews</div><div id="mw-reviews"></div></div>
+  <div class="btn-row" id="mw-action-btns"></div>
+</div>
+</div>
+
+<!-- ══ MODAL: Booking (student) ══ -->
+<div class="modal-overlay" id="modal-booking">
+<div class="modal-sheet">
+  <div class="modal-handle"></div>
+  <button class="modal-close-btn" onclick="closeModal('modal-booking')">×</button>
+  <div style="display:flex;gap:6px;margin-bottom:20px">
+    <div class="bstep active" id="bstep-1">1</div>
+    <div style="flex:1;height:2px;background:var(--border);margin:auto;border-radius:1px" id="bline-1"></div>
+    <div class="bstep" id="bstep-2">2</div>
+    <div style="flex:1;height:2px;background:var(--border);margin:auto;border-radius:1px" id="bline-2"></div>
+    <div class="bstep" id="bstep-3">3</div>
+    <div style="flex:1;height:2px;background:var(--border);margin:auto;border-radius:1px" id="bline-3"></div>
+    <div class="bstep" id="bstep-4">✓</div>
+  </div>
+  <div id="booking-step-1">
+    <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:4px">What service?</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Choose the type of job you need done.</div>
+    <div id="service-options" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+    <div class="btn-row" style="margin-top:20px"><button class="btn btn-primary btn-full" onclick="bookingNext(1)">Next →</button></div>
+  </div>
+  <div id="booking-step-2" style="display:none">
+    <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:4px">When?</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Pick a date and time.</div>
+    <label class="form-label">Date</label><input class="form-field" type="date" id="booking-date">
+    <label class="form-label">Start Time</label><input class="form-field" type="time" id="booking-time" value="09:00">
+    <label class="form-label">Duration</label>
+    <select class="form-field" id="booking-duration"><option value="1">1 hour</option><option value="2" selected>2 hours</option><option value="3">3 hours</option><option value="4">Half day (4 hrs)</option></select>
+    <label class="form-label">Address</label><input class="form-field" type="text" id="booking-address" placeholder="123 Main St, South Bend, IN">
+    <div class="btn-row" style="margin-top:16px"><button class="btn btn-ghost" onclick="bookingBack(2)" style="flex:1">← Back</button><button class="btn btn-primary" onclick="bookingNext(2)" style="flex:2">Next →</button></div>
+  </div>
+  <div id="booking-step-3" style="display:none">
+    <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:4px">Who & notes</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Pick a worker or let STWRD match you.</div>
+    <label class="form-label">Worker</label>
+    <select class="form-field" id="booking-worker"><option value="">🎲 Let STWRD match me</option></select>
+    <label class="form-label">Notes</label>
+    <textarea class="form-field" id="booking-notes" placeholder="Gate code, equipment, special instructions…"></textarea>
+    <div class="btn-row" style="margin-top:16px"><button class="btn btn-ghost" onclick="bookingBack(3)" style="flex:1">← Back</button><button class="btn btn-primary" onclick="bookingNext(3)" style="flex:2">Confirm ✓</button></div>
+  </div>
+  <div id="booking-step-4" style="display:none;text-align:center;padding:16px 0">
+    <div style="font-size:52px;margin-bottom:12px">🎉</div>
+    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:8px">Booking Confirmed!</div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px" id="booking-confirm-summary"></div>
+    <div style="background:var(--c3);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:left;margin-bottom:20px" id="booking-confirm-card"></div>
+    <button class="btn btn-primary btn-full" onclick="closeModal('modal-booking');navStudent('s-schedule',document.getElementById('nav-s-schedule'))">View in Schedule</button>
+  </div>
+</div>
+</div>
+
+<!-- ══ MODAL: Post Job (homeowner) ══ -->
+<div class="modal-overlay" id="modal-post-job">
+<div class="modal-sheet">
+  <div class="modal-handle"></div>
+  <button class="modal-close-btn" onclick="closeModal('modal-post-job')">×</button>
+  <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:4px">Post a Job</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Fill in the details and STWRD will match you with local workers.</div>
+  <label class="form-label">Job Type</label>
+  <select class="form-field" id="pj-type">
+    <option value="">Select a service…</option>
+    <option>🌿 Lawn Mowing</option><option>🚗 Car Washing</option><option>❄️ Snow Removal</option><option>🍂 Yard Work</option><option>🧹 Cleaning</option><option>🔧 Other</option>
+  </select>
+  <label class="form-label">Job Title</label>
+  <input class="form-field" id="pj-title" placeholder="e.g. Weekly Saturday Lawn Mow">
+  <label class="form-label">Description</label>
+  <textarea class="form-field" id="pj-desc" placeholder="Describe the job, any equipment provided, access details…" style="height:90px"></textarea>
+  <label class="form-label">Pay</label>
+  <input class="form-field" id="pj-pay" placeholder="e.g. $35 or $35/wk" type="text">
+  <label class="form-label">When</label>
+  <input class="form-field" id="pj-when" placeholder="e.g. Saturdays at 10 AM, flexible, on-demand">
+  <label class="form-label">Boost this listing? <span style="color:var(--muted)">(shown first to workers)</span></label>
+  <div style="display:flex;gap:10px;margin-bottom:8px">
+    <button class="btn btn-ghost" id="pj-boost-no" onclick="setPjBoost(false)" style="flex:1">No boost</button>
+    <button class="btn btn-primary" id="pj-boost-yes" onclick="setPjBoost(true)" style="flex:1;opacity:0.5">⚡ Boost ($2.99)</button>
+  </div>
+  <div class="btn-row" style="margin-top:8px"><button class="btn btn-primary btn-full" onclick="submitJob()">Post Job →</button></div>
+</div>
+</div>
+
+<!-- ══ MODAL: Job Posted Confirm ══ -->
+<div class="modal-overlay" id="modal-job-posted">
+<div class="modal-sheet" style="text-align:center">
+  <div class="modal-handle"></div>
+  <div style="font-size:52px;margin-bottom:12px">📋</div>
+  <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:8px">Job Posted!</div>
+  <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px" id="job-posted-summary"></div>
+  <div style="background:var(--c3);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:left;margin-bottom:20px" id="job-posted-card"></div>
+  <button class="btn btn-primary btn-full" onclick="closeModal('modal-job-posted')">Done</button>
+</div>
+</div>
+
+<!-- ══ MODAL: Listing Detail (student) ══ -->
+<div class="modal-overlay" id="modal-listing">
+<div class="modal-sheet">
+  <div class="modal-handle"></div>
+  <button class="modal-close-btn" onclick="closeModal('modal-listing')">×</button>
+  <div style="font-size:44px;margin-bottom:12px" id="ml-icon"></div>
+  <div class="modal-name" id="ml-title"></div>
+  <div style="font-family:'Fraunces',serif;font-size:20px;color:var(--c4);font-weight:700;margin-top:4px" id="ml-price"></div>
+  <div class="modal-sec">
+    <div class="modal-sec-title">Homeowner</div>
+    <div style="display:flex;gap:12px;align-items:center;margin-top:8px">
+      <div class="modal-av" style="width:48px;height:48px;font-size:16px;margin:0" id="ml-hw-av"></div>
+      <div id="ml-hw-info"></div>
+    </div>
+  </div>
+  <div class="modal-sec"><div class="modal-sec-title">Description</div><div class="modal-bio" id="ml-desc"></div></div>
+  <div class="modal-sec"><div class="modal-sec-title">Details</div><div style="font-size:13px;color:var(--dim);line-height:2" id="ml-details"></div></div>
+  <div class="btn-row" style="margin-top:16px"><button class="btn btn-primary btn-full" onclick="applyJob()">✋ Apply Now</button></div>
+  <div class="btn-row"><button class="btn btn-ghost btn-full" onclick="msgHO()">💬 Message HO</button></div>
+</div>
+</div>
+
+<!-- ══ MODAL: Portfolio ══ -->
+<div class="modal-overlay" id="modal-portfolio">
+<div class="modal-sheet" style="text-align:center">
+  <div class="modal-handle"></div>
+  <button class="modal-close-btn" onclick="closeModal('modal-portfolio')">×</button>
+  <div style="font-size:52px;margin-bottom:12px" id="pm-icon"></div>
+  <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700" id="pm-title"></div>
+  <div class="stats-row" style="margin-top:16px">
+    <div class="mstat"><div class="mstat-v" id="pm-count"></div><div class="mstat-l">Jobs Done</div></div>
+    <div class="mstat"><div class="mstat-v" id="pm-rating"></div><div class="mstat-l">Avg Rating</div></div>
+  </div>
+  <div style="margin-top:14px;font-size:12px;color:var(--muted)">Service hours logged and verified by STWRD.</div>
+</div>
+</div>
+
+<!-- ══ API LOG ══ -->
+<div id="api-log"></div>
+
+<div id="toast"></div>
+</div><!-- /app-inner -->
+</div><!-- /phone-frame -->
+
+<script>
+// ════════════════════════════════════════════
+// MOCK BACKEND SERVICE LAYER
+// Simulates a real REST API with network latency,
+// localStorage persistence, and request logging.
+// ════════════════════════════════════════════
+const MockAPI = {
+  baseURL: 'https://api.stwrd.app/v1',
+  _log: [],
+  _listeners: [],
+
+  _latency: () => Math.random() * 300 + 80,
+
+  _store(key, val) {
+    try { localStorage.setItem('stwrd_' + key, JSON.stringify(val)); } catch(e) {}
+  },
+  _load(key, fallback) {
+    try {
+      const v = localStorage.getItem('stwrd_' + key);
+      return v ? JSON.parse(v) : fallback;
+    } catch(e) { return fallback; }
+  },
+
+  _emit(method, endpoint, status) {
+    const line = `${method} ${endpoint} → ${status}`;
+    this._log.unshift(line);
+    if (this._log.length > 6) this._log.pop();
+    this._listeners.forEach(fn => fn(this._log));
+  },
+
+  onLog(fn) { this._listeners.push(fn); },
+
+  async get(endpoint) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        this._emit('GET', endpoint, '200 OK');
+        resolve({ ok: true, data: DB[endpoint] || null });
+      }, this._latency());
+    });
+  },
+
+  async post(endpoint, payload) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const id = 'id_' + Date.now();
+        if (endpoint === '/jobs') {
+          DB['/jobs/active'].unshift({ id, ...payload, status: 'open', applicants: 0, posted: 'Just now' });
+          this._store('jobs_active', DB['/jobs/active']);
+        }
+        if (endpoint === '/bookings') {
+          DB['/bookings/upcoming'].unshift({ id, ...payload, status: 'pending' });
+          this._store('bookings_upcoming', DB['/bookings/upcoming']);
+        }
+        if (endpoint === '/applications') {
+          this._store('applications', payload);
+        }
+        this._emit('POST', endpoint, '201 Created');
+        resolve({ ok: true, id });
+      }, this._latency());
+    });
+  },
+
+  async patch(endpoint, payload) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        this._emit('PATCH', endpoint, '200 OK');
+        resolve({ ok: true });
+      }, this._latency());
+    });
+  },
+
+  async delete(endpoint) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        this._emit('DELETE', endpoint, '204 No Content');
+        resolve({ ok: true });
+      }, this._latency());
+    });
+  }
+};
+
+// ════════════════════════════════════════════
+// IN-MEMORY DATABASE
+// ════════════════════════════════════════════
+const DB = {
+  '/user/student': { id: 'u1', name: 'Joel Montiel', ini: 'JM', role: 'student', rating: 4.9, jobs: 42, hours: 127, earned: 1840, onTime: '100%' },
+  '/user/homeowner': { id: 'u2', name: 'Sandra Kim', ini: 'SK', role: 'homeowner', rating: 4.9, jobsPosted: 14, spent: 680 },
+  '/jobs/active': [
+    { id: 'j1', icon: '🌿', title: 'Weekly Lawn Mowing', price: '$35/wk', premium: true, hw: { name: 'Sandra K.', ini: 'SK', verified: true, rating: 4.9, flag: 'safe' }, desc: 'Need a reliable student every Saturday. Equipment provided.', loc: '0.3 mi · South Bend, IN', date: 'Recurring Saturdays', applicants: 3 },
+    { id: 'j2', icon: '🚗', title: 'Two-Car Wash & Detail', price: '$50', premium: false, hw: { name: 'Marcus T.', ini: 'MT', verified: true, rating: 4.7, flag: 'safe' }, desc: 'Two SUVs washed and lightly detailed on Sunday.', loc: '0.8 mi · Goshen, IN', date: 'Sun, Apr 27', applicants: 2 },
+    { id: 'j3', icon: '❄️', title: 'Driveway Snow Clearing', price: '$40', premium: false, hw: { name: 'James H.', ini: 'JH', verified: false, rating: 3.2, flag: 'caution' }, desc: '3-car driveway needs clearing after snowfall. Shovel on site.', loc: '1.2 mi · Elkhart, IN', date: 'On-demand', applicants: 1 },
+    { id: 'j4', icon: '🍂', title: 'Full Yard Cleanup', price: '$80', premium: true, hw: { name: 'Chen Residence', ini: 'CR', verified: true, rating: 5.0, flag: 'safe' }, desc: 'Leaf blowing, edging, dead plant removal, general tidying.', loc: '0.6 mi · Mishawaka, IN', date: 'Flexible this week', applicants: 5 },
+    { id: 'j5', icon: '🧹', title: 'Garage & Patio Sweep', price: '$30', premium: false, hw: { name: 'Davis Family', ini: 'DF', verified: false, rating: 2.1, flag: 'avoid' }, desc: 'Sweep out garage and patio, haul bags to curb.', loc: '1.5 mi · Goshen, IN', date: 'Any day this week', applicants: 0 },
+    { id: 'j6', icon: '🌿', title: 'Front Lawn Edge & Trim', price: '$25', premium: false, hw: { name: 'Lisa M.', ini: 'LM', verified: true, rating: 4.6, flag: 'safe' }, desc: 'Just need edging and trimming. Quick job.', loc: '0.5 mi · South Bend, IN', date: 'This weekend', applicants: 4 },
+  ],
+  '/workers': [
+    {id:1,name:'Simon Arroyo',ini:'SA',school:'Concord HS',age:17,vetted:true,rating:4.9,rev:22,hours:84,jobs:29,bio:'Junior from Elkhart saving for college. Specializes in lawn care and yard cleanup.',skills:['🌿 Lawn Mowing','🍂 Yard Work','🧹 Cleaning'],reviews:[{a:'Sandra K.',s:'★★★★★',t:'Simon is amazing — meticulous and always on time!'}]},
+    {id:2,name:'Gadi Montiel',ini:'GM',school:'Notre Dame',age:20,vetted:true,rating:5.0,rev:28,hours:95,jobs:33,bio:'Sophomore at Notre Dame. Passionate about helping neighbors.',skills:['🌿 Lawn Mowing','🍂 Yard Work','🚗 Car Washing'],reviews:[{a:'Anderson Family',s:'★★★★★',t:'Gadi is outstanding — always goes above and beyond!'}]},
+    {id:3,name:'Emmanuel Martinez',ini:'EM',school:'Notre Dame',age:19,vetted:true,rating:4.9,rev:17,hours:62,jobs:22,bio:'Freshman at Notre Dame from South Bend. Energetic and reliable.',skills:['🌿 Lawn Mowing','❄️ Snow Removal','🧹 Cleaning'],reviews:[{a:'Wilson Residence',s:'★★★★★',t:'Emmanuel was excellent — very thorough.'}]},
+    {id:4,name:'Brylee Baker',ini:'BB',school:'Concord HS',age:16,vetted:false,rating:3.1,rev:12,hours:41,jobs:14,bio:'Sophomore from Elkhart. Getting started — still building consistency.',skills:['🧹 Cleaning','🍂 Yard Work'],reviews:[{a:'Peters Family',s:'★★★☆☆',t:'Did okay but missed a few spots.'}]},
+    {id:5,name:'Tristan Jurhoff',ini:'TJ',school:'Bethel University',age:19,vetted:true,rating:4.8,rev:31,hours:112,jobs:38,bio:'Freshman at Bethel from South Bend. Very communicative and thorough.',skills:['🍂 Yard Work','🧹 Cleaning','🚗 Car Washing'],reviews:[{a:'Chen Residence',s:'★★★★★',t:'Tristan went above and beyond!'}]},
+    {id:6,name:'Wesson Hahn',ini:'WH',school:'Fairfield HS',age:17,vetted:false,rating:4.6,rev:8,hours:29,jobs:10,bio:'Junior from Goshen. Reliable and always on time.',skills:['🌿 Lawn Mowing','❄️ Snow Removal'],reviews:[{a:'Taylor Family',s:'★★★★★',t:'Wesson did a solid job on our lawn.'}]},
+    {id:7,name:'Colin Albright',ini:'CA',school:'Notre Dame',age:20,vetted:true,rating:4.8,rev:16,hours:58,jobs:21,bio:'Sophomore at Notre Dame from Elkhart. Hardworking and punctual.',skills:['🌿 Lawn Mowing','❄️ Snow Removal','🍂 Yard Work'],reviews:[{a:'Miller Family',s:'★★★★★',t:'Colin was fantastic — showed up early!'}]},
+    {id:8,name:'Eliana Hakaj',ini:'EH',school:'Penn HS',age:17,vetted:true,rating:4.9,rev:14,hours:48,jobs:17,bio:'Junior from Mishawaka. Detail-oriented and great with cleaning.',skills:['🚗 Car Washing','🧹 Cleaning'],reviews:[{a:'Roberts Family',s:'★★★★★',t:'Eliana was so thorough!'}]},
+    {id:9,name:'Trey Brannamen',ini:'TB',school:'Fairfield HS',age:16,vetted:true,rating:4.9,rev:14,hours:52,jobs:18,bio:'Sophomore from Goshen. Family runs a landscaping biz.',skills:['🌿 Lawn Mowing','🍂 Yard Work'],reviews:[{a:'Davis Family',s:'★★★★★',t:'Trey has great instincts!'}]},
+    {id:10,name:'Daniel Bocanegra',ini:'DB',school:'Goshen College',age:21,vetted:true,rating:4.9,rev:20,hours:73,jobs:26,bio:'Junior at Goshen College. Takes pride in every job.',skills:['🍂 Yard Work','🧹 Cleaning','🚗 Car Washing'],reviews:[{a:'Thompson Residence',s:'★★★★★',t:'Daniel is the most thorough worker we\'ve had!'}]},
+    {id:11,name:'Owen Bradshaw',ini:'OB',school:'Concord HS',age:16,vetted:true,rating:5.0,rev:18,hours:61,jobs:20,bio:'Sophomore from Elkhart. Detail-oriented and passionate.',skills:['🚗 Car Washing','🧹 Cleaning','❄️ Snow Removal'],reviews:[{a:'Marcus T.',s:'★★★★★',t:'Left our car spotless. Highly recommend!'}]},
+    {id:12,name:'Danica Montiel',ini:'DM',school:'Concord HS',age:16,vetted:true,rating:4.9,rev:13,hours:44,jobs:16,bio:'Sophomore from Elkhart. One of the top-rated younger workers.',skills:['🧹 Cleaning','🚗 Car Washing','🍂 Yard Work'],reviews:[{a:'Johnson Family',s:'★★★★★',t:'Danica was incredible!'}]},
+  ],
+  '/bookings/upcoming': [
+    {id:'b1',service:'🌿',serviceName:'Lawn Mowing',worker:'Sandra K.',date:'2026-04-26',time:'10:00',duration:2,address:'142 Oak St, South Bend, IN',price:35,status:'confirmed',notes:'Gate code 1234'},
+    {id:'b2',service:'🚗',serviceName:'Car Washing',worker:'Marcus T.',date:'2026-04-27',time:'14:00',duration:2,address:'88 Elm Ave, Goshen, IN',price:50,status:'pending',notes:''},
+    {id:'b3',service:'🍂',serviceName:'Yard Cleanup',worker:'Daniel Bocanegra',date:'2026-05-03',time:'09:00',duration:4,address:'201 Maple Dr, Mishawaka, IN',price:80,status:'confirmed',notes:'Focus on back yard'},
+  ],
+  '/bookings/past': [
+    {id:'b4',service:'❄️',serviceName:'Snow Removal',worker:'Colin Albright',date:'2026-02-15',time:'08:00',duration:2,price:55},
+    {id:'b5',service:'🍂',serviceName:'Yard Cleanup',worker:'Simon Arroyo',date:'2026-02-10',time:'10:00',duration:3,price:70},
+    {id:'b6',service:'🌿',serviceName:'Lawn Mowing',worker:'Trey Brannamen',date:'2026-02-03',time:'11:00',duration:2,price:35},
+  ],
+};
+
+// ════════════════════════════════════════════
+// APP STATE
+// ════════════════════════════════════════════
+let currentRole = null;
+let currentUser = { name: '', firstName: '', initials: '' };
+let activeContact = null;
+let selectedBookingService = null;
+let currentWorkerModal = null;
+let pjBoost = false;
+let calYear = 2026, calMonth = 3; // April
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const sContacts = [
+  {id:'stewie',name:'Stewie',sub:'Your STWRD AI',av:'🐶',stewie:true,time:'now',msgs:[{f:'recv',t:"🐾 Woof! Hey Joel! I'm Stewie — your STWRD assistant. I help you find jobs, manage bookings, and answer questions. What can I fetch for you today?"}]},
+  {id:'sandra',name:'Sandra K.',sub:'Lawn Mowing · Sat 10 AM',av:'SK',time:'2m',msgs:[{f:'recv',t:'Hi Joel! Confirming for Saturday — gate code is 1234. Thanks!'},{f:'sent',t:"Sounds great, I'll be there at 10 sharp!"}]},
+  {id:'marcus',name:'Marcus T.',sub:'Car Wash · Sun 2 PM',av:'MT',time:'1h',msgs:[{f:'recv',t:'Can you bring supplies or should I have soap ready?'}]},
+];
+const hContacts = [
+  {id:'stewie',name:'Stewie',sub:'Your STWRD AI',av:'🐶',stewie:true,time:'now',msgs:[{f:'recv',t:"🐾 Woof! Hi Sandra! I'm Stewie. I can help you post jobs, review applicants, and manage your bookings. What do you need today?"}]},
+  {id:'joel',name:'Joel M.',sub:'Lawn Mowing applicant',av:'JM',time:'2m',msgs:[{f:'recv',t:'Hi! I applied for the lawn mowing job. I have my own mower if needed!'},{f:'sent',t:"Thanks Joel! We'll review your profile and get back to you soon."}]},
+  {id:'owen',name:'Owen B.',sub:'Car Wash · completed',av:'OB',time:'3h',msgs:[{f:'recv',t:'All done! Left your cars looking great.'},{f:'sent',t:'Amazing work, thank you Owen!'}]},
+];
+const stewieStudentReplies = ["Woof! I can filter nearby listings by your top skills. Want me to? 🐾","Based on your profile, you're a top match for lawn care and yard work!","42 jobs with a 4.9 rating — you're one of our top workers! 🏆","Tip: Look for ✓ Verified Homeowners on listings for the safest jobs.","Your 127 service hours are logged and verified — strong portfolio! 🌟","Want help scheduling upcoming jobs and setting reminders? 📅"];
+const stewieHOReplies = ["Woof! I can recommend top-rated workers for your next posting! 🐾","Sandra, you've had 100% completion rate — your worker ratings are excellent!","Tip: Boost your listing to get 3x more applicants within 24 hours. ⚡","Your neighborhood has 12 vetted workers available this weekend!","Want me to auto-match you with the highest-rated worker for your next job?","You've saved $420 vs. hiring a professional service this season! 💰"];
+let stewieIdx = 0;
+
+const services = [
+  {id:'lawn',icon:'🌿',name:'Lawn Mowing',price:35},
+  {id:'car',icon:'🚗',name:'Car Washing',price:40},
+  {id:'snow',icon:'❄️',name:'Snow Removal',price:45},
+  {id:'yard',icon:'🍂',name:'Yard Work',price:55},
+  {id:'clean',icon:'🧹',name:'Cleaning',price:30},
+  {id:'other',icon:'🔧',name:'Other',price:30},
+];
+
+// ════════════════════════════════════════════
+// SIGN IN
+// ════════════════════════════════════════════
+function selectRole(role) {
+  currentRole = role;
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(role === 'homeowner' ? 'role-ho' : 'role-st').classList.add('selected');
+  document.getElementById('si-name-wrap').classList.add('show');
+  document.getElementById('si-name').placeholder = role === 'homeowner' ? 'e.g. Sandra' : 'e.g. Joel';
+  document.getElementById('si-name').focus();
+  onNameInput();
+}
+
+function onNameInput() {
+  const name = document.getElementById('si-name').value.trim();
+  const btn = document.getElementById('si-continue');
+  if (currentRole && name.length >= 2) {
+    btn.classList.add('ready');
+    btn.textContent = currentRole === 'homeowner' ? `Enter as Homeowner →` : `Enter as Student →`;
+  } else {
+    btn.classList.remove('ready');
+    btn.textContent = 'Continue →';
+  }
+}
+
+async function doSignIn() {
+  if (!currentRole) return;
+  const rawName = document.getElementById('si-name').value.trim();
+  if (rawName.length < 2) { showToastSignin('Please enter your name'); return; }
+  // Build user object from entered name
+  const nameParts = rawName.split(' ');
+  const firstName = nameParts[0];
+  const lastName = nameParts[1] || '';
+  const initials = (firstName[0] + (lastName ? lastName[0] : firstName[1] || '')).toUpperCase();
+  currentUser = { name: rawName, firstName, initials };
+  document.getElementById('signin-screen').classList.add('out');
+  const ls = document.getElementById('loading-screen');
+  ls.classList.add('show');
+
+  const steps = [
+    [15, 'Authenticating user…'],
+    [35, 'Fetching your profile…'],
+    [55, 'Loading nearby jobs…'],
+    [72, 'Syncing schedule…'],
+    [88, 'Connecting to Stewie…'],
+    [100, 'Ready!'],
+  ];
+
+  const bar = document.getElementById('loading-bar');
+  const status = document.getElementById('loading-status');
+  for (const [pct, msg] of steps) {
+    await new Promise(r => setTimeout(r, 320));
+    bar.style.width = pct + '%';
+    status.textContent = msg;
+    MockAPI._emit('GET', `/user/${currentRole}`, '200 OK');
+  }
+  await new Promise(r => setTimeout(r, 400));
+  ls.classList.remove('show');
+  initApp();
+}
+
+// ════════════════════════════════════════════
+// INIT APP
+// ════════════════════════════════════════════
+function initApp() {
+  document.getElementById('topbar').style.display = 'flex';
+  document.getElementById('pages').style.display = 'block';
+  document.getElementById('bottom-nav').style.display = 'flex';
+
+  MockAPI.onLog(renderApiLog);
+
+  const badge = document.getElementById('topbar-role-badge');
+  badge.style.display = 'block';
+
+  if (currentRole === 'student') {
+    badge.textContent = 'STUDENT';
+    document.getElementById('topbar-avatar').textContent = currentUser.initials;
+    // Inject name into student profile card
+    document.getElementById('s-profile-name').textContent = currentUser.name;
+    document.getElementById('s-profile-avatar').childNodes[0].textContent = currentUser.initials;
+    document.getElementById('s-profile-sub').textContent = `📍 Goshen, IN · STWRD Member`;
+    // Personalize Stewie greeting
+    sContacts[0].msgs[0].t = `🐾 Woof! Hey ${currentUser.firstName}! I'm Stewie — your STWRD assistant. I help you find jobs, manage bookings, and answer questions. What can I fetch for you today?`;
+    renderStudentNav();
+    renderThreads('s', sContacts);
+    renderListingCards(DB['/jobs/active']);
+    renderCalendar();
+    renderUpcoming(null);
+    renderPast();
+    navStudent('s-home', null);
+  } else {
+    badge.textContent = 'HOMEOWNER';
+    document.getElementById('topbar-avatar').textContent = currentUser.initials;
+    // Inject name into homeowner profile card
+    document.getElementById('h-profile-name').textContent = currentUser.name;
+    document.getElementById('h-profile-avatar').childNodes[0].textContent = currentUser.initials;
+    document.getElementById('h-profile-sub').textContent = `📍 South Bend, IN · Verified Homeowner`;
+    // Personalize Stewie greeting
+    hContacts[0].msgs[0].t = `🐾 Woof! Hi ${currentUser.firstName}! I'm Stewie. I can help you post jobs, review applicants, and manage bookings. What do you need today?`;
+    renderHomeownerNav();
+    renderThreads('h', hContacts);
+    renderWorkers(DB['/workers']);
+    renderHoJobs();
+    navHomeowner('h-home', null);
+  }
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function renderStudentNav() {
+  document.getElementById('bottom-nav').innerHTML = `
+    <button class="bn-item" id="nav-s-home" onclick="navStudent('s-home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><rect x="9" y="14" width="6" height="7" rx="1"/></svg>Home
+    </button>
+    <button class="bn-item" id="nav-s-search" onclick="navStudent('s-search',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Jobs
+    </button>
+    <button class="bn-item" id="nav-s-schedule" onclick="navStudent('s-schedule',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule
+    </button>
+    <button class="bn-item" id="nav-s-messages" onclick="navStudent('s-messages',this)">
+      <div class="bn-badge">3</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat
+    </button>`;
+  navStudent('s-home', document.getElementById('nav-s-home'));
+}
+
+function renderHomeownerNav() {
+  document.getElementById('bottom-nav').innerHTML = `
+    <button class="bn-item" id="nav-h-home" onclick="navHomeowner('h-home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><rect x="9" y="14" width="6" height="7" rx="1"/></svg>Home
+    </button>
+    <button class="bn-item" id="nav-h-jobs" onclick="navHomeowner('h-jobs',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>My Jobs
+    </button>
+    <button class="bn-item" id="nav-h-workers" onclick="navHomeowner('h-workers',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 11l2 2 4-4"/></svg>Workers
+    </button>
+    <button class="bn-item" id="nav-h-messages" onclick="navHomeowner('h-messages',this)">
+      <div class="bn-badge">2</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat
+    </button>`;
+  navHomeowner('h-home', document.getElementById('nav-h-home'));
+}
+
+function navStudent(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('page-' + page);
+  if (el) el.classList.add('active');
+  if (btn) btn.classList.add('active');
+  const titles = {'s-home':'','s-search':'Find Jobs','s-schedule':'My Schedule','s-messages':'Messages'};
+  document.getElementById('topbar-title').textContent = titles[page] || '';
+  document.getElementById('topbar-logo').style.display = page === 's-home' ? 'block' : 'none';
+  if (page === 's-schedule') { renderCalendar(); renderUpcoming(null); renderPast(); }
+  MockAPI.get('/pages/' + page);
+}
+
+function navHomeowner(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('page-' + page);
+  if (el) el.classList.add('active');
+  if (btn) btn.classList.add('active');
+  const titles = {'h-home':'','h-jobs':'My Jobs','h-workers':'Find Workers','h-messages':'Messages'};
+  document.getElementById('topbar-title').textContent = titles[page] || '';
+  document.getElementById('topbar-logo').style.display = page === 'h-home' ? 'block' : 'none';
+  MockAPI.get('/pages/' + page);
+}
+
+// ════════════════════════════════════════════
+// API LOG UI
+// ════════════════════════════════════════════
+let apiLogVisible = false;
+function toggleApiLog() {
+  apiLogVisible = !apiLogVisible;
+  document.getElementById('api-log').classList.toggle('show', apiLogVisible);
+}
+function renderApiLog(lines) {
+  const el = document.getElementById('api-log');
+  el.innerHTML = lines.map((l, i) => `<div class="api-log-line ${i===0?'fresh':''}">${l}</div>`).join('');
+  if (apiLogVisible) el.classList.add('show');
+}
+
+// ════════════════════════════════════════════
+// WORKERS (shared)
+// ════════════════════════════════════════════
+function renderWorkers(data) {
+  document.getElementById('workers-list').innerHTML = data.map(w => `
+    <div class="worker-card" onclick="openWorker(${w.id})">
+      ${w.vetted ? '<div class="wc-vetted">✓ Vetted</div>' : ''}
+      <div class="wc-top">
+        <div class="wc-av">${w.ini}</div>
+        <div>
+          <div class="wc-name">${w.name}</div>
+          <div class="wc-school">${w.age} yrs old${w.school ? ' · ' + w.school : ''}</div>
+          <div class="wc-rating"><span style="color:var(--c4)">${'★'.repeat(Math.round(w.rating))}${'☆'.repeat(5-Math.round(w.rating))}</span><span>${w.rating} (${w.rev})</span></div>
+        </div>
+      </div>
+      <div class="wc-skills">${w.skills.map(s=>`<span class="wc-skill">${s}</span>`).join('')}</div>
+      <div class="wc-footer"><span>${w.hours} svc hrs · ${w.jobs} jobs</span></div>
+    </div>`).join('');
+}
+
+function filterWorkers(q) {
+  const workers = DB['/workers'];
+  q = q.toLowerCase();
+  renderWorkers(workers.filter(w => w.name.toLowerCase().includes(q) || w.school.toLowerCase().includes(q) || w.skills.some(s => s.toLowerCase().includes(q))));
+  MockAPI.get('/workers?q=' + encodeURIComponent(q));
+}
+
+function filterChip(btn, type) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  const workers = DB['/workers'];
+  if (type === 'all') { renderWorkers(workers); return; }
+  if (type === 'vetted') { renderWorkers(workers.filter(w => w.vetted)); return; }
+  if (type === 'top') { renderWorkers(workers.filter(w => w.rating >= 4.8)); return; }
+  const map = {lawn:'lawn',snow:'snow',car:'car',yard:'yard',clean:'clean'};
+  renderWorkers(workers.filter(w => w.skills.some(s => s.toLowerCase().includes(map[type]))));
+  MockAPI.get('/workers?filter=' + type);
+}
+
+function openWorker(id) {
+  currentWorkerModal = id;
+  const workers = DB['/workers'];
+  const w = workers.find(x => x.id === id);
+  document.getElementById('mw-av').textContent = w.ini;
+  document.getElementById('mw-name').textContent = w.name;
+  document.getElementById('mw-sub').textContent = `${w.age} yrs old${w.school ? ' · ' + w.school : ''}`;
+  document.getElementById('mw-stars').textContent = '★'.repeat(Math.round(w.rating)) + '☆'.repeat(5-Math.round(w.rating));
+  document.getElementById('mw-rv').textContent = `${w.rating} (${w.rev} reviews)`;
+  document.getElementById('mw-vetted').style.display = w.vetted ? 'inline-flex' : 'none';
+  document.getElementById('mw-stats').innerHTML = `
+    <div class="mstat"><div class="mstat-v">${w.hours}</div><div class="mstat-l">Svc Hrs</div></div>
+    <div class="mstat"><div class="mstat-v">${w.jobs}</div><div class="mstat-l">Jobs</div></div>
+    <div class="mstat"><div class="mstat-v">${w.rating}</div><div class="mstat-l">Rating</div></div>`;
+  document.getElementById('mw-bio').textContent = w.bio;
+  document.getElementById('mw-skills').innerHTML = w.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('');
+  document.getElementById('mw-reviews').innerHTML = w.reviews.map(r=>`<div class="review-item"><div class="review-top"><div class="review-auth">${r.a}</div><div class="review-stars">${r.s}</div></div><div class="review-text">"${r.t}"</div></div>`).join('');
+  // Different action buttons per role
+  if (currentRole === 'homeowner') {
+    document.getElementById('mw-action-btns').innerHTML = `
+      <button class="btn btn-primary btn-full" onclick="hireWorker(${id})">✅ Hire for a Job</button>`;
+  } else {
+    document.getElementById('mw-action-btns').innerHTML = `
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-worker')">Close</button>`;
+  }
+  MockAPI.get('/workers/' + id);
+  openModal('modal-worker');
+}
+
+function hireWorker(id) {
+  const workers = DB['/workers'];
+  const w = workers.find(x => x.id === id);
+  closeModal('modal-worker');
+  showToast(`✅ ${w.name} notified — awaiting confirmation.`);
+  MockAPI.post('/hire', { workerId: id, homeownerId: 'u2' });
+}
+
+// ════════════════════════════════════════════
+// LISTINGS (student)
+// ════════════════════════════════════════════
+function renderListingCards(data) {
+  const flagClass = {safe:'pill-safe',caution:'pill-caution',avoid:'pill-avoid'};
+  const flagText = {safe:'✓ Safe',caution:'⚠ Caution',avoid:'✕ Avoid'};
+  document.getElementById('listings-list').innerHTML = data.map(l => `
+    <div class="lcard ${l.premium?'premium':''}" onclick="openListing('${l.id}')">
+      ${l.premium ? '<div class="lcard-boost">⚡ BOOSTED</div>' : ''}
+      <div class="lcard-top">
+        <div class="lcard-emoji">${l.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="lcard-title">${l.title}</div>
+          <div class="lcard-price">${l.price}</div>
+        </div>
+      </div>
+      <div class="hw-row">
+        <div class="hw-av">${l.hw.ini}</div>
+        <div>
+          <div class="hw-name">${l.hw.name}${l.hw.verified?'<span class="hw-check">✓</span>':''}</div>
+          <div class="hw-rating-row"><span style="color:var(--c4);font-size:11px">${'★'.repeat(Math.round(l.hw.rating))}</span><span>${l.hw.rating}</span></div>
+        </div>
+        <span class="pill ${flagClass[l.hw.flag]}" style="margin-left:auto">${flagText[l.hw.flag]}</span>
+      </div>
+    </div>`).join('') || '<div style="text-align:center;color:var(--muted);padding:32px;font-size:14px">No jobs found</div>';
+}
+
+function filterListings(q) {
+  q = q.toLowerCase();
+  const filtered = DB['/jobs/active'].filter(l => l.title.toLowerCase().includes(q) || l.hw.name.toLowerCase().includes(q) || l.desc.toLowerCase().includes(q));
+  renderListingCards(filtered);
+  MockAPI.get('/jobs?q=' + encodeURIComponent(q));
+}
+
+function filterListingChip(btn, type) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  if (type === 'all') { renderListingCards(DB['/jobs/active']); return; }
+  if (type === 'boosted') { renderListingCards(DB['/jobs/active'].filter(l => l.premium)); return; }
+  const filtered = DB['/jobs/active'].filter(l => l.icon.toLowerCase().includes(type) || l.title.toLowerCase().includes(type));
+  renderListingCards(filtered);
+  MockAPI.get('/jobs?category=' + type);
+}
+
+function openListing(id) {
+  const l = DB['/jobs/active'].find(x => x.id === id);
+  if (!l) return;
+  const fc = {safe:'pill-safe',caution:'pill-caution',avoid:'pill-avoid'}[l.hw.flag];
+  const ft = {safe:'✓ Safe to visit',caution:'⚠ Proceed with caution',avoid:'✕ Workers advise avoiding'}[l.hw.flag];
+  document.getElementById('ml-icon').textContent = l.icon;
+  document.getElementById('ml-title').textContent = l.title;
+  document.getElementById('ml-price').textContent = l.price;
+  document.getElementById('ml-hw-av').textContent = l.hw.ini;
+  document.getElementById('ml-hw-info').innerHTML = `
+    <div style="font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px">${l.hw.name} ${l.hw.verified?'<span class="pill pill-accent" style="font-size:9px">✓ Verified</span>':'<span class="pill pill-subtle" style="font-size:9px">Unverified</span>'}</div>
+    <div class="hw-rating-row" style="margin-top:4px"><span style="color:var(--c4)">${'★'.repeat(Math.round(l.hw.rating))}</span><span>${l.hw.rating}/5.0</span></div>
+    <span class="pill ${fc}" style="margin-top:6px;display:inline-flex">${ft}</span>`;
+  document.getElementById('ml-desc').textContent = l.desc;
+  document.getElementById('ml-details').innerHTML = `📍 ${l.loc}<br>📅 ${l.date}<br>👥 ${l.applicants} applicants${l.premium?'<br>⚡ Boosted Listing':''}`;
+  MockAPI.get('/jobs/' + id);
+  openModal('modal-listing');
+}
+
+function applyJob() {
+  closeModal('modal-listing');
+  MockAPI.post('/applications', { studentId: 'u1', jobId: 'current' });
+  showToast('✅ Applied! The homeowner will be in touch.');
+}
+
+function msgHO() {
+  closeModal('modal-listing');
+  navStudent('s-messages', document.getElementById('nav-s-messages'));
+}
+
+// ════════════════════════════════════════════
+// HOMEOWNER JOBS
+// ════════════════════════════════════════════
+function renderHoJobs() {
+  const active = DB['/jobs/active'].filter(j => j.hw && j.hw.ini === 'SK');
+  document.getElementById('ho-active-listings').innerHTML = active.length ? active.map(j => `
+    <div class="ho-job-card">
+      <div class="ho-job-top">
+        <div class="ho-job-icon">${j.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="ho-job-title">${j.title}</div>
+          <div class="ho-job-price">${j.price}</div>
+        </div>
+        ${j.premium ? '<span class="pill pill-accent" style="font-size:9px">⚡ Boosted</span>' : ''}
+      </div>
+      <div class="ho-job-footer">
+        <span style="font-size:12px;color:var(--muted)">📅 ${j.date}</span>
+        <span class="pill pill-new">${j.applicants} applicants</span>
+      </div>
+    </div>`).join('') : `<div style="text-align:center;color:var(--muted);padding:24px;font-size:13px;background:var(--c2);border:1px solid var(--border);border-radius:14px;margin-bottom:12px">No active listings.<br><span style="color:var(--c4);cursor:pointer" onclick="openPostJob()">+ Post a Job</span></div>`;
+
+  // Always show Sandra's active jobs
+  const sandraJobs = [DB['/jobs/active'][0], DB['/jobs/active'][1]];
+  document.getElementById('ho-active-listings').innerHTML = sandraJobs.map(j => `
+    <div class="ho-job-card" onclick="openHoJobDetail('${j.id}')">
+      <div class="ho-job-top">
+        <div class="ho-job-icon">${j.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="ho-job-title">${j.title}</div>
+          <div class="ho-job-price">${j.price}</div>
+        </div>
+        ${j.premium ? '<span class="pill pill-accent" style="font-size:9px;flex-shrink:0">⚡ Boosted</span>' : ''}
+      </div>
+      <div class="ho-job-footer">
+        <span style="font-size:12px;color:var(--muted)">📅 ${j.date}</span>
+        <span class="pill pill-new" style="cursor:pointer" onclick="event.stopPropagation();viewApplicants('${j.id}')">${j.applicants} applicants →</span>
+      </div>
+    </div>`).join('');
+
+  const past = DB['/bookings/past'];
+  document.getElementById('ho-past-jobs').innerHTML = past.map(b => {
+    const d = new Date(b.date+'T'+b.time);
+    const ds = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return `<div class="job-card"><div class="job-card-icon">${b.service}</div><div class="job-card-info"><div class="job-card-title">${b.serviceName}</div><div class="job-card-sub">📅 ${ds} · ${b.duration} hrs<br>👤 ${b.worker}</div></div><div class="job-card-price">$${b.price}</div></div>`;
+  }).join('');
+}
+
+function openHoJobDetail(id) {
+  const j = DB['/jobs/active'].find(x => x.id === id);
+  if (!j) return;
+  showToast(`${j.applicants} workers applied · tap applicants to review`);
+}
+
+function viewApplicants(jobId) {
+  openModal('modal-applicants');
+  renderApplicants(jobId);
+  MockAPI.get('/jobs/' + jobId + '/applicants');
+}
+
+// ════════════════════════════════════════════
+// POST JOB (homeowner)
+// ════════════════════════════════════════════
+function openPostJob() { pjBoost = false; setPjBoost(false); openModal('modal-post-job'); }
+function setPjBoost(val) {
+  pjBoost = val;
+  document.getElementById('pj-boost-yes').style.opacity = val ? '1' : '0.5';
+  document.getElementById('pj-boost-no').style.opacity = val ? '0.5' : '1';
+}
+
+async function submitJob() {
+  const type = document.getElementById('pj-type').value;
+  const title = document.getElementById('pj-title').value;
+  const pay = document.getElementById('pj-pay').value;
+  const when = document.getElementById('pj-when').value;
+  const desc = document.getElementById('pj-desc').value;
+  if (!type || !title || !pay) { showToast('Please fill in job type, title, and pay'); return; }
+
+  const icon = type.split(' ')[0];
+  const payload = { icon, title, price: pay, premium: pjBoost, hw: { name: 'Sandra K.', ini: 'SK', verified: true, rating: 4.9, flag: 'safe' }, desc: desc || 'No description provided.', loc: '0.3 mi · South Bend, IN', date: when || 'Flexible', applicants: 0 };
+
+  closeModal('modal-post-job');
+  const res = await MockAPI.post('/jobs', payload);
+
+  document.getElementById('job-posted-summary').textContent = `Your job "${title}" is now live. STWRD will notify nearby workers immediately.${pjBoost ? ' ⚡ Boost active — your listing will appear first.' : ''}`;
+  document.getElementById('job-posted-card').innerHTML = `
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="font-size:28px">${icon}</div>
+      <div><div style="font-weight:600;font-size:14px">${title}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">💰 ${pay} · 📅 ${when || 'Flexible'}</div>
+      ${pjBoost ? '<div style="font-size:11px;color:var(--c4);margin-top:4px">⚡ Boosted</div>' : ''}
+      </div>
+    </div>`;
+  openModal('modal-job-posted');
+  renderHoJobs();
+  ['pj-type','pj-title','pj-desc','pj-pay','pj-when'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ════════════════════════════════════════════
+// CALENDAR & SCHEDULE (student)
+// ════════════════════════════════════════════
+function renderCalendar() {
+  document.getElementById('cal-month-label').textContent = monthNames[calMonth] + ' ' + calYear;
+  const grid = document.getElementById('cal-grid');
+  const today = new Date();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+  const bookedDates = new Set(DB['/bookings/upcoming'].map(b => b.date));
+  let html = '';
+  for (let i = firstDay - 1; i >= 0; i--) html += `<div class="cal-day other-month">${daysInPrev - i}</div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+    const hasJob = bookedDates.has(ds);
+    html += `<div class="cal-day ${isToday?'today':''} ${hasJob?'has-job':''}" onclick="calDayClick('${ds}',this)">${d}</div>`;
+  }
+  const rem = 7 - ((firstDay + daysInMonth) % 7);
+  if (rem < 7) for (let i = 1; i <= rem; i++) html += `<div class="cal-day other-month">${i}</div>`;
+  grid.innerHTML = html;
+}
+function prevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function nextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+function calDayClick(ds, el) {
+  document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected-day'));
+  el.classList.add('selected-day');
+  renderUpcoming(ds);
+}
+
+function renderUpcoming(filterDate) {
+  const now = new Date();
+  const upcoming = DB['/bookings/upcoming'].filter(b => filterDate ? b.date === filterDate : new Date(b.date+'T'+b.time) >= now).sort((a,b) => new Date(a.date+'T'+a.time) - new Date(b.date+'T'+b.time));
+  const el = document.getElementById('upcoming-jobs');
+  if (!upcoming.length) {
+    el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px;font-size:13px;background:var(--c2);border:1px solid var(--border);border-radius:14px">No upcoming jobs${filterDate?' on this date':''}.<br><span style="color:var(--c4);cursor:pointer" onclick="openNewBooking()">+ Book one now</span></div>`;
+    return;
+  }
+  el.innerHTML = upcoming.map(b => {
+    const d = new Date(b.date+'T'+b.time);
+    const ds = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const ts = d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    const sp = b.status==='confirmed' ? `<span class="pill pill-accent" style="font-size:9px">✓ Confirmed</span>` : `<span class="pill pill-subtle" style="font-size:9px">Pending</span>`;
+    return `<div class="job-card"><div class="job-card-icon">${b.service}</div><div class="job-card-info"><div class="job-card-title">${b.serviceName}</div><div class="job-card-sub">📅 ${ds} · ${ts}<br>👤 ${b.worker}<br>📍 ${b.address}</div><div style="margin-top:6px">${sp}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div class="job-card-price">$${b.price}</div><button class="btn btn-ghost" style="font-size:10px;padding:4px 10px" onclick="cancelBooking('${b.id}')">Cancel</button></div></div>`;
+  }).join('');
+}
+
+function renderPast() {
+  const past = DB['/bookings/past'].sort((a,b) => new Date(b.date) - new Date(a.date));
+  document.getElementById('past-jobs').innerHTML = past.map(b => {
+    const d = new Date(b.date+'T'+b.time);
+    const ds = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return `<div class="job-card"><div class="job-card-icon">${b.service}</div><div class="job-card-info"><div class="job-card-title">${b.serviceName}</div><div class="job-card-sub">📅 ${ds} · ${b.duration} hrs<br>👤 ${b.worker}</div></div><div class="job-card-price">$${b.price}</div></div>`;
+  }).join('');
+}
+
+async function cancelBooking(id) {
+  DB['/bookings/upcoming'] = DB['/bookings/upcoming'].filter(b => b.id !== id);
+  await MockAPI.delete('/bookings/' + id);
+  renderCalendar(); renderUpcoming(null);
+  showToast('Booking cancelled.');
+}
+
+// ════════════════════════════════════════════
+// BOOKING FLOW (student)
+// ════════════════════════════════════════════
+function openNewBooking(presetWorkerId) {
+  selectedBookingService = null;
+  const today = new Date();
+  const dd = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()+1).padStart(2,'0')}`;
+  document.getElementById('booking-date').value = dd;
+  document.getElementById('service-options').innerHTML = services.map(s => `
+    <div class="service-tile" id="stile-${s.id}" onclick="selectService('${s.id}')">
+      <div class="st-icon">${s.icon}</div><div class="st-name">${s.name}</div>
+    </div>`).join('');
+  const sel = document.getElementById('booking-worker');
+  sel.innerHTML = '<option value="">🎲 Let STWRD match me</option>' + DB['/workers'].map(w => `<option value="${w.id}" ${presetWorkerId==w.id?'selected':''}>${w.name} · ${w.age}${w.school?' · '+w.school:''}</option>`).join('');
+  goToBookingStep(1);
+  MockAPI.get('/services');
+  openModal('modal-booking');
+}
+
+function selectService(id) {
+  selectedBookingService = id;
+  document.querySelectorAll('.service-tile').forEach(t => t.classList.remove('selected'));
+  document.getElementById('stile-'+id).classList.add('selected');
+}
+
+function bookingNext(step) {
+  if (step===1) { if (!selectedBookingService){showToast('Please select a service');return;} goToBookingStep(2); }
+  else if (step===2) { if (!document.getElementById('booking-date').value){showToast('Please pick a date');return;} if (!document.getElementById('booking-address').value){showToast('Please enter address');return;} goToBookingStep(3); }
+  else if (step===3) { finalizeBooking(); }
+}
+function bookingBack(step) { goToBookingStep(step-1); }
+
+function goToBookingStep(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('booking-step-'+i).style.display = i===n?'block':'none';
+    const s = document.getElementById('bstep-'+i);
+    if (s) { s.classList.remove('active','done'); if(i<n)s.classList.add('done'); if(i===n)s.classList.add('active'); }
+    const l = document.getElementById('bline-'+i);
+    if (l) l.style.background = i<n?'var(--c4)':'var(--border)';
+  });
+}
+
+async function finalizeBooking() {
+  const svc = services.find(s => s.id === selectedBookingService);
+  const date = document.getElementById('booking-date').value;
+  const time = document.getElementById('booking-time').value;
+  const duration = document.getElementById('booking-duration').value;
+  const address = document.getElementById('booking-address').value;
+  const notes = document.getElementById('booking-notes').value;
+  const wid = document.getElementById('booking-worker').value;
+  const workerName = wid ? DB['/workers'].find(w=>w.id==wid)?.name||'STWRD Match' : 'STWRD Match';
+  const d = new Date(date+'T'+time);
+  const ds = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const ts = d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const price = svc.price*(parseInt(duration)/2);
+  const newB = { service:svc.icon, serviceName:svc.name, worker:workerName, date, time, duration:parseInt(duration), address, price, status:'pending', notes };
+  const res = await MockAPI.post('/bookings', newB);
+  document.getElementById('booking-confirm-summary').textContent = `Your ${svc.name} job is booked for ${ds} at ${ts}. ${workerName==='STWRD Match'?"We'll match you with the best worker!":`${workerName} has been notified.`}`;
+  document.getElementById('booking-confirm-card').innerHTML = `<div style="display:flex;gap:12px;align-items:center"><div style="font-size:28px">${svc.icon}</div><div><div style="font-weight:600;font-size:14px">${svc.name}</div><div style="font-size:12px;color:var(--muted);margin-top:3px">📅 ${ds} · ${ts}</div><div style="font-size:12px;color:var(--muted)">👤 ${workerName}</div><div style="font-size:12px;color:var(--muted)">📍 ${address}</div></div><div style="margin-left:auto;font-family:'Fraunces',serif;font-size:18px;color:var(--c4);font-weight:700">$${price}</div></div>`;
+  goToBookingStep(4);
+  renderCalendar(); renderUpcoming(null);
+}
+
+// ════════════════════════════════════════════
+// MESSAGES
+// ════════════════════════════════════════════
+function renderThreads(prefix, contacts) {
+  const listEl = document.getElementById(prefix + '-thread-list');
+  listEl.innerHTML = contacts.map(c => `
+    <div class="thread ${c.stewie?'stewie-thread':''}" onclick="openThread('${prefix}','${c.id}')">
+      <div class="th-av ${c.stewie?'stewie':''}">${c.av}</div>
+      <div class="th-info">
+        <div class="th-name">${c.name}${c.stewie?'<span class="ai-pill">AI</span>':''}</div>
+        <div class="th-preview">${c.msgs[c.msgs.length-1].t}</div>
+      </div>
+      <div class="th-time">${c.time}</div>
+    </div>`).join('');
+}
+
+function openThread(prefix, id) {
+  activeContact = id;
+  const contacts = prefix === 's' ? sContacts : hContacts;
+  const c = contacts.find(x => x.id === id);
+  document.getElementById(prefix+'-ct-av').textContent = c.stewie ? '🐶' : c.av;
+  document.getElementById(prefix+'-ct-name').textContent = c.name + (c.stewie ? ' 🐾' : '');
+  const msgs = document.getElementById(prefix+'-chat-msgs');
+  msgs.innerHTML = '';
+  c.msgs.forEach(m => addBubble(prefix, m.f, m.t, false, c.stewie));
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById(prefix+'-chat-view').classList.add('open');
+  MockAPI.get('/messages/' + id);
+}
+
+function closeChat(prefix) {
+  document.getElementById(prefix+'-chat-view').classList.remove('open');
+  activeContact = null;
+}
+
+function addBubble(prefix, from, text, scroll, isStewi) {
+  const msgs = document.getElementById(prefix+'-chat-msgs');
+  const wrap = document.createElement('div');
+  wrap.style.cssText = `display:flex;flex-direction:column;align-items:${from==='sent'?'flex-end':'flex-start'}`;
+  const b = document.createElement('div');
+  b.className = `bubble bubble-${from}${isStewi&&from==='recv'?' bubble-stewie':''}`;
+  if (isStewi&&from==='recv') b.innerHTML = `<div class="stewie-lbl">🐶 Stewie</div>${text}`;
+  else b.textContent = text;
+  wrap.appendChild(b);
+  msgs.appendChild(wrap);
+  if (scroll) msgs.scrollTop = msgs.scrollHeight;
+}
+
+function sendMsg(prefix) {
+  const input = document.getElementById(prefix+'-chat-input');
+  const txt = input.value.trim();
+  if (!txt || !activeContact) return;
+  const contacts = prefix === 's' ? sContacts : hContacts;
+  const c = contacts.find(x => x.id === activeContact);
+  c.msgs.push({f:'sent',t:txt});
+  addBubble(prefix,'sent',txt,true,false);
+  input.value = '';
+  MockAPI.post('/messages', { to: activeContact, body: txt });
+  if (c.stewie) {
+    const msgs = document.getElementById(prefix+'-chat-msgs');
+    const typing = document.createElement('div');
+    typing.innerHTML = `<div class="bubble bubble-recv bubble-stewie"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+    msgs.appendChild(typing); msgs.scrollTop = msgs.scrollHeight;
+    setTimeout(() => {
+      msgs.removeChild(typing);
+      const replies = prefix === 's' ? stewieStudentReplies : stewieHOReplies;
+      const r = replies[stewieIdx++ % replies.length];
+      c.msgs.push({f:'recv',t:r});
+      addBubble(prefix,'recv',r,true,true);
+    }, 1400);
+  }
+}
+
+// ════════════════════════════════════════════
+// PORTFOLIO
+// ════════════════════════════════════════════
+function openPortfolio(title, icon, count, rating) {
+  document.getElementById('pm-icon').textContent = icon;
+  document.getElementById('pm-title').textContent = title;
+  document.getElementById('pm-count').textContent = count;
+  document.getElementById('pm-rating').textContent = '⭐ ' + rating;
+  MockAPI.get('/portfolio/' + title.toLowerCase().replace(' ','-'));
+  openModal('modal-portfolio');
+}
+
+// ════════════════════════════════════════════
+// MODALS
+// ════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showToastSignin(msg) {
+  // Shake the name input
+  const input = document.getElementById('si-name');
+  input.style.borderColor = 'rgba(220,80,80,0.6)';
+  input.style.animation = 'none';
+  setTimeout(() => { input.style.borderColor = ''; }, 1200);
+  showToast(msg);
+}
+</script>
+</body>
+</html>
